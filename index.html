@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>迪卡儂三重店｜租借登記 Rental Registration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<script>
+  /* ====================================================
+     Google 表單設定（請改成你的表單資料）
+     ==================================================== */
+  // 1) 表單網址：把 /viewform 換成 /formResponse
+  const GOOGLE_FORM_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLSdt-2wkCB4tqoVka83II9T4VAkxx9S54Td4vklCK76nHGsgpg/formResponse";
+  // 2) 各題的 entry 編號
+  const ENTRY = {
+    date:  "entry.1410484337", // 登記日期（日期題型：實際送出時會拆成 _year/_month/_day）
+    name:  "entry.932855363",  // 登記人（簡答）
+    phone: "entry.882302470",  // 連絡電話（簡答）
+    item:  "entry.1562741818" // 借用項目（選擇題，選項文字需與下方 ITEMS 的 value 完全一致，維持中文）
+  };
+  // en 只用於畫面顯示（雙語標示），送出 Google 表單時仍使用 value（中文）
+  const ITEMS = [
+    { value: "寵物推車",   en: "Pet stroller",     icon: "pet"   },
+    { value: "哺乳室鑰匙", en: "Breastfeeding Room Key", icon: "key"   },
+    { value: "輪椅",       en: "Wheelchair",       icon: "wheel" }
+  ];
+</script>
+<style>
+  :root{
+    --primary:#3643ba;
+    --primary-dark:#2c358f;
+    --primary-soft:#eef0fc;
+    --ink:#1e2233;
+    --muted:#737896;
+    --line:#e4e6f0;
+    --bg:#ffffff;
+    --danger:#d6344d;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{
+    font-family:"Inter","Noto Sans TC",system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
+    background:var(--bg);color:var(--ink);
+  }
+  .wrap{max-width:480px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+
+  /* ---------- Header ---------- */
+  header{
+    display:flex;justify-content:space-between;align-items:flex-end;gap:16px;
+    padding:calc(24px + env(safe-area-inset-top,0px)) 22px 20px;
+  }
+  .brand{font-family:"Inter",sans-serif;font-weight:600;font-size:14px;letter-spacing:.1em;color:var(--primary)}
+  header h1{font-size:28px;font-weight:900;line-height:1.2;margin-top:4px}
+  header .h1-en{font-size:13px;font-weight:700;color:var(--muted);margin-top:2px}
+  header .store{font-size:13px;color:var(--muted);margin-top:6px}
+  .cal{
+    flex-shrink:0;width:70px;border-radius:14px;overflow:hidden;text-align:center;
+    border:1.5px solid var(--line);
+  }
+  .cal .m{background:var(--primary);color:#fff;font-size:11.5px;font-weight:700;padding:4px 2px;line-height:1.3}
+  .cal .dd{font-family:"Inter",sans-serif;font-size:28px;font-weight:600;line-height:1.15;padding-top:4px}
+  .cal .wk{font-size:10.5px;color:var(--muted);padding:0 2px 6px;line-height:1.3}
+
+  /* ---------- 提醒帶 ---------- */
+  .notice{
+    margin:0 22px;padding:14px 16px;border-left:4px solid var(--primary);
+    background:var(--primary-soft);border-radius:0 12px 12px 0;
+    font-size:14px;line-height:1.75;color:#3a3f5c;
+  }
+  .notice b{color:var(--primary)}
+  .notice .en{display:block;margin-top:8px;font-size:12.5px;line-height:1.6;color:var(--muted)}
+  .notice .en b{color:var(--primary)}
+
+  main{flex:1;padding:8px 22px 120px}
+
+  /* ---------- 欄位 ---------- */
+  .field{padding:22px 0;border-bottom:1px solid var(--line)}
+  .field:last-child{border-bottom:0}
+  .label{display:flex;align-items:baseline;gap:8px;font-size:16px;font-weight:700;margin-bottom:2px}
+  .label .req{color:var(--danger);font-size:14px}
+  .label-en{font-size:12px;color:var(--muted);font-weight:500;margin-bottom:12px}
+  .label-line{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  .label-line .label{margin-bottom:0}
+  .label-line .label-en{margin-bottom:0}
+  .label-line.en{margin-bottom:12px}
+  .hint{font-size:12px;color:var(--muted);font-weight:500;text-align:right;white-space:nowrap}
+  .hint-en{font-size:12px;color:var(--muted);font-weight:500;text-align:right;white-space:nowrap}
+
+  .input{
+    width:100%;height:52px;border:0;border-bottom:2px solid var(--line);border-radius:0;
+    padding:0 2px;font-size:20px;font-weight:500;font-family:inherit;color:var(--ink);background:transparent;
+    transition:border-color .15s;
+  }
+  .input::placeholder{color:#c0c3d4;font-weight:400}
+  .input:focus{outline:none;border-bottom-color:var(--primary)}
+  .input.err{border-bottom-color:var(--danger)}
+
+  /* 登記人 */
+  .name-row{display:flex;align-items:flex-end;gap:14px}
+  .name-row .input{flex:1;min-width:0}
+  .titles{display:flex;gap:8px;flex-shrink:0}
+  .titles button{
+    height:52px;min-width:66px;padding:5px 14px;border-radius:14px;cursor:pointer;
+    border:1.5px solid var(--line);background:#fff;font-family:inherit;color:var(--muted);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+    transition:all .15s;
+  }
+  .titles button .t-zh{font-size:15px;font-weight:700;line-height:1.15}
+  .titles button .t-en{font-size:10px;font-weight:600;line-height:1.15;opacity:.7}
+  .titles button[aria-checked="true"]{background:var(--primary);border-color:var(--primary);color:#fff}
+  .titles button[aria-checked="true"] .t-en{opacity:.85}
+
+  /* 借用項目：直列單選 */
+  .opts{display:flex;flex-direction:column;gap:10px}
+  .opt{
+    display:flex;align-items:center;gap:14px;width:100%;
+    padding:12px 16px 12px 12px;border-radius:16px;border:1.5px solid var(--line);background:#fff;
+    font-family:inherit;color:var(--ink);cursor:pointer;text-align:left;transition:border-color .15s,background .15s;
+  }
+  .opt .ic{
+    width:48px;height:48px;border-radius:12px;background:#f3f4f8;color:var(--muted);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;
+  }
+  .opt .ic svg{width:30px;height:30px}
+  .opt .nm{flex:1;font-size:17px;font-weight:700;line-height:1.3}
+  .opt .nm-en{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-top:1px}
+  .opt .radio{
+    width:24px;height:24px;border-radius:50%;border:2px solid #c9ccda;flex-shrink:0;position:relative;transition:border-color .15s;
+  }
+  .opt .radio::after{
+    content:"";position:absolute;inset:4px;border-radius:50%;background:var(--primary);transform:scale(0);transition:transform .15s;
+  }
+  .opt[aria-checked="true"]{border-color:var(--primary);background:var(--primary-soft)}
+  .opt[aria-checked="true"] .ic{background:var(--primary);color:#fff}
+  .opt[aria-checked="true"] .radio{border-color:var(--primary)}
+  .opt[aria-checked="true"] .radio::after{transform:scale(1)}
+  .opts.err .opt{border-color:#f0b6c0}
+
+  .err-msg{font-size:13px;color:var(--danger);margin-top:8px;display:none}
+  .err-msg.show{display:block}
+  .preview-name{font-size:13px;color:var(--muted);margin-top:10px;min-height:18px}
+  .preview-name b{color:var(--primary)}
+
+  /* ---------- 底部送出列 ---------- */
+  .bar{
+    position:fixed;left:0;right:0;bottom:0;z-index:5;
+    background:rgba(255,255,255,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border-top:1px solid var(--line);
+    padding:12px 22px calc(12px + env(safe-area-inset-bottom,0px));
+  }
+  .bar-inner{max-width:436px;margin:0 auto}
+  .btn{
+    width:100%;height:54px;border:0;border-radius:14px;background:var(--primary);color:#fff;
+    font-family:inherit;font-size:17px;font-weight:700;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s;
+  }
+  .btn:hover{background:var(--primary-dark)}
+  .btn:disabled{opacity:.6;cursor:default}
+  .btn:focus-visible,.opt:focus-visible,.titles button:focus-visible{outline:3px solid rgba(54,67,186,.35);outline-offset:2px}
+  .spinner{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .demo{font-size:12px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.6}
+
+  /* ---------- 完成頁 ---------- */
+  #done{
+    display:none;min-height:100vh;min-height:100dvh;background:var(--primary);color:#fff;
+    padding:calc(40px + env(safe-area-inset-top,0px)) 22px calc(28px + env(safe-area-inset-bottom,0px));
+  }
+  body.is-done .wrap,body.is-done .bar{display:none}
+  body.is-done #done{display:block}
+  body.is-done{background:var(--primary)}
+  .done-inner{max-width:436px;margin:0 auto}
+  .done-head{display:flex;align-items:center;gap:12px}
+  .check{
+    width:44px;height:44px;border-radius:50%;background:#fff;color:var(--primary);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    animation:pop .45s cubic-bezier(.2,1.4,.4,1);
+  }
+  .check svg{width:24px;height:24px}
+  @keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+  .done-head h2{font-size:23px;font-weight:900}
+  .done-sub{font-size:13px;font-weight:700;opacity:.8;margin-top:1px}
+  .done-head p{font-size:13px;opacity:.8;margin-top:6px;line-height:1.5}
+
+  .pass{background:#fff;color:var(--ink);border-radius:22px;margin-top:24px;overflow:hidden}
+  .pass-item{padding:26px 22px 22px;display:flex;align-items:center;gap:16px}
+  .pass-item .ic{width:64px;height:64px;border-radius:16px;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .pass-item .ic svg{width:40px;height:40px}
+  .pass-item .k{font-size:13px;color:var(--muted)}
+  .pass-item .v{font-size:26px;font-weight:900;line-height:1.3}
+  .pass-item .v .v-en{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-top:2px}
+  .pass-cut{position:relative;border-top:2px dashed var(--line);margin:0 22px}
+  .pass-cut::before,.pass-cut::after{content:"";position:absolute;top:-13px;width:26px;height:26px;border-radius:50%;background:var(--primary)}
+  .pass-cut::before{left:-35px}.pass-cut::after{right:-35px}
+  .pass-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;padding:20px 22px}
+  .pass-grid .k{font-size:13px;color:var(--muted)}
+  .pass-grid .v{font-size:20px;font-weight:900;margin-top:2px}
+  .pass-grid .v.num{font-family:"Inter",sans-serif;font-weight:600;letter-spacing:.03em}
+  .pass-grid .full{grid-column:1/-1;margin-top:14px}
+  .pass-foot{background:#fff8e6;color:#5c4712;font-size:13.5px;line-height:1.7;padding:14px 22px}
+  .pass-foot b{color:#3f300a}
+  .pass-foot .en{display:block;margin-top:6px;color:#8a7238}
+
+  .btn.light{background:transparent;border:1.5px solid rgba(255,255,255,.45);margin-top:18px}
+  .btn.light:hover{background:rgba(255,255,255,.1)}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="brand">DECATHLON</div>
+      <h1>租借登記</h1>
+      <div class="h1-en">Rental Registration</div>
+      <div class="store">迪卡儂三重店 · Sanchong Store</div>
+    </div>
+    <div class="cal" aria-label="登記日期 Registration date">
+      <div class="m" id="calM"></div>
+      <div class="dd" id="calD"></div>
+      <div class="wk" id="calW"></div>
+    </div>
+  </header>
+
+  <div class="notice">
+    親愛的顧客您好，在填寫完畢後，請<b>押一張個人證件（或鑰匙等）至服務台</b>。使用完畢後，請記得至服務台取回證件，感謝您的配合，祝您購物愉快。
+    <span class="en">Dear customer, after completing this form, please leave <b>a personal ID (or your keys, etc.) at the service counter</b>. Please remember to collect it after use. Thank you for your cooperation, and enjoy your shopping!</span>
+  </div>
+
+  <main>
+    <div class="field">
+      <div class="label">借用項目 <span class="req">*</span></div>
+      <div class="label-en">Item to borrow</div>
+      <div class="opts" id="opts" role="radiogroup" aria-label="借用項目 Item to borrow"></div>
+      <div class="err-msg" id="itemErr">請選擇一個借用項目 / Please select an item</div>
+    </div>
+
+    <div class="field">
+      <div class="label-line">
+        <div class="label">登記人 <span class="req">*</span></div>
+        <div class="hint">只需輸入姓氏</div>
+      </div>
+      <div class="label-line en">
+        <div class="label-en">Registrant name</div>
+        <div class="hint-en">Last name only</div>
+      </div>
+      <div class="name-row">
+        <input class="input" id="surname" type="text" maxlength="4" placeholder="例：李 / e.g. Lee" autocomplete="family-name">
+        <div class="titles" role="radiogroup" aria-label="稱謂 Title">
+          <button type="button" role="radio" data-title="先生" aria-checked="true"><span class="t-zh">先生</span><span class="t-en">Mr.</span></button>
+          <button type="button" role="radio" data-title="小姐" aria-checked="false"><span class="t-zh">小姐</span><span class="t-en">Ms.</span></button>
+        </div>
+      </div>
+      <div class="preview-name" id="namePreview"></div>
+      <div class="err-msg" id="nameErr">請輸入姓氏 / Please enter your last name</div>
+    </div>
+
+    <div class="field">
+      <div class="label">連絡電話 <span class="req">*</span></div>
+      <div class="label-en">Contact phone number</div>
+      <input class="input" id="phone" type="tel" inputmode="tel" maxlength="12" placeholder="例：0912345678" autocomplete="tel">
+      <div class="err-msg" id="phoneErr">請輸入正確的電話號碼 / Please enter a valid phone number</div>
+    </div>
+  </main>
+</div>
+
+<div class="bar">
+  <div class="bar-inner">
+    <button class="btn" id="submitBtn" type="button">送出登記 Submit</button>
+    <div class="demo" id="demoBar" hidden>預覽模式：尚未設定 Google 表單，資料不會送出<br>Preview mode — Google Form not connected yet</div>
+  </div>
+</div>
+
+<!-- ============ 完成頁 ============ -->
+<section id="done">
+  <div class="done-inner">
+    <div class="done-head">
+      <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <div>
+        <h2>登記完成</h2>
+        <div class="done-sub">Registration Complete</div>
+      </div>
+    </div>
+    <p>請出示此畫面給服務台人員<br>Please show this screen at the service counter</p>
+
+    <div class="pass">
+      <div class="pass-item">
+        <div class="ic" id="pIcon"></div>
+        <div>
+          <div class="k">借用項目 Item</div>
+          <div class="v" id="pItem"></div>
+        </div>
+      </div>
+      <div class="pass-cut"></div>
+      <div class="pass-grid">
+        <div><div class="k">登記人 Name</div><div class="v" id="pName"></div></div>
+        <div><div class="k">連絡電話 Phone</div><div class="v num" id="pPhone"></div></div>
+        <div class="full"><div class="k">登記時間 Time</div><div class="v num" id="pTime"></div></div>
+      </div>
+      <div class="pass-foot">請<b>押一張個人證件（或鑰匙等）</b>至服務台，使用完畢後記得取回。<span class="en">Please leave <b>a personal ID (or keys)</b> at the counter, and remember to collect it after use.</span></div>
+    </div>
+
+    <button class="btn light" id="againBtn" type="button">重新登記 New registration</button>
+  </div>
+</section>
+
+<script>
+  const ICONS = {
+    pet: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 10h5l4 20h23l4-14H12"/><circle cx="18" cy="37" r="3"/><circle cx="34" cy="37" r="3"/><circle cx="26" cy="23.5" r="2.4" fill="currentColor" stroke="none"/><circle cx="21.8" cy="19.8" r="1.6" fill="currentColor" stroke="none"/><circle cx="26" cy="18.2" r="1.6" fill="currentColor" stroke="none"/><circle cx="30.2" cy="19.8" r="1.6" fill="currentColor" stroke="none"/></svg>',
+    key: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="15" cy="24" r="8"/><circle cx="15" cy="24" r="2.5"/><path d="M23 24h19M36 24v6M41 24v4"/></svg>',
+    wheel: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="19" cy="8" r="3"/><path d="M19 14v12h12l5 10"/><path d="M19 20h9"/><path d="M13 24.5A10 10 0 1 0 29 34"/></svg>'
+  };
+
+  const $ = id => document.getElementById(id);
+  const isDemo = GOOGLE_FORM_ACTION.includes("XXXX");
+  if (isDemo) $("demoBar").hidden = false;
+
+  /* ---------- 日期 ---------- */
+  const pad = n => String(n).padStart(2, "0");
+  const WEEK_ZH = ["日","一","二","三","四","五","六"];
+  const WEEK_EN = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
+  const MONTH_EN = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+  const todayStr = (d = new Date()) => `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())}`;
+  const isoDate = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; // Google 表單日期題要求的格式
+  function renderDate(){
+    const d = new Date();
+    $("calM").textContent = `${d.getMonth()+1}月 ${MONTH_EN[d.getMonth()]}`;
+    $("calD").textContent = d.getDate();
+    $("calW").textContent = `星期${WEEK_ZH[d.getDay()]} ${WEEK_EN[d.getDay()]}`;
+  }
+  renderDate();
+
+  /* ---------- 借用項目（單選） ---------- */
+  let item = null;
+  $("opts").innerHTML = ITEMS.map((it, i) => `
+    <button type="button" class="opt" role="radio" aria-checked="false" data-i="${i}">
+      <span class="ic">${ICONS[it.icon]}</span>
+      <span class="nm">${it.value}<span class="nm-en">${it.en}</span></span>
+      <span class="radio"></span>
+    </button>`).join("");
+  $("opts").querySelectorAll(".opt").forEach(el => {
+    el.addEventListener("click", () => {
+      item = ITEMS[el.dataset.i];
+      $("opts").querySelectorAll(".opt").forEach(x => x.setAttribute("aria-checked", x === el));
+      $("opts").classList.remove("err"); $("itemErr").classList.remove("show");
+    });
+  });
+
+  /* ---------- 登記人 ---------- */
+  let title = "先生";
+  document.querySelectorAll(".titles button").forEach(b => {
+    b.addEventListener("click", () => {
+      title = b.dataset.title;
+      document.querySelectorAll(".titles button").forEach(x => x.setAttribute("aria-checked", x === b));
+      updatePreview();
+    });
+  });
+  const fullName = () => $("surname").value.trim() + title;
+  function escapeHtml(s){ return s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  function updatePreview(){
+    const s = $("surname").value.trim();
+    $("namePreview").innerHTML = s ? `將登記為 / Registering as：<b>${escapeHtml(s + title)}</b>` : "";
+  }
+  $("surname").addEventListener("input", () => { updatePreview(); clearErr("surname","nameErr"); });
+
+  /* ---------- 電話 ---------- */
+  const phoneDigits = () => $("phone").value.replace(/\D/g, "");
+  $("phone").addEventListener("input", () => clearErr("phone","phoneErr"));
+  const formatPhone = p => (p.length === 10 && p.startsWith("09")) ? `${p.slice(0,4)}-${p.slice(4,7)}-${p.slice(7)}` : p;
+
+  /* ---------- 驗證 ---------- */
+  function clearErr(inputId, msgId){ $(inputId).classList.remove("err"); $(msgId).classList.remove("show"); }
+  function validate(){
+    let first = null;
+    if (!item){ $("opts").classList.add("err"); $("itemErr").classList.add("show"); first ??= $("opts"); }
+    if (!$("surname").value.trim()){ $("surname").classList.add("err"); $("nameErr").classList.add("show"); first ??= $("surname"); }
+    if (!/^0\d{8,9}$/.test(phoneDigits())){ $("phone").classList.add("err"); $("phoneErr").classList.add("show"); first ??= $("phone"); }
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+    return !first;
+  }
+
+  /* ---------- 送出 ---------- */
+  $("submitBtn").addEventListener("click", async () => {
+    if (!validate()) return;
+    const btn = $("submitBtn");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>送出中… Submitting…';
+
+    const now = new Date();
+    const data = { date: todayStr(now), name: fullName(), phone: phoneDigits(), item };
+
+    try {
+      if (!isDemo){
+        const body = new URLSearchParams();
+        body.append(ENTRY.date, isoDate(now)); // 格式需為 YYYY-MM-DD
+        body.append(ENTRY.name, data.name);
+        body.append(ENTRY.phone, "'" + data.phone); // 前面加 ' 避免試算表吃掉開頭的 0
+        body.append(ENTRY.item, data.item.value);
+        await fetch(GOOGLE_FORM_ACTION, { method: "POST", mode: "no-cors", body });
+      } else {
+        await new Promise(r => setTimeout(r, 600));
+      }
+      showDone(data, now);
+    } catch (e) {
+      alert("送出失敗，請確認網路連線後再試一次。\nSubmission failed — please check your connection and try again.");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "送出登記 Submit";
+    }
+  });
+
+  function showDone(d, now = new Date()){
+    $("pIcon").innerHTML = ICONS[d.item.icon];
+    $("pItem").innerHTML = `${escapeHtml(d.item.value)}<span class="v-en">${escapeHtml(d.item.en)}</span>`;
+    $("pName").textContent = d.name;
+    $("pPhone").textContent = formatPhone(d.phone);
+    $("pTime").textContent = `${d.date}  ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    document.body.classList.add("is-done");
+    window.scrollTo({ top: 0 });
+  }
+
+  $("againBtn").addEventListener("click", () => {
+    $("surname").value = ""; $("phone").value = ""; item = null;
+    $("opts").querySelectorAll(".opt").forEach(x => x.setAttribute("aria-checked", "false"));
+    updatePreview(); renderDate();
+    document.body.classList.remove("is-done");
+    window.scrollTo({ top: 0 });
+  });
+</script>
+</body>
+</html>

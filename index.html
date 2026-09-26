@@ -181,7 +181,7 @@
   @keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
   .done-head h2{font-size:23px;font-weight:900}
   .done-sub{font-size:13px;font-weight:700;opacity:.8;margin-top:1px}
-  .done-head p{font-size:13px;opacity:.8;margin-top:6px;line-height:1.5}
+  .done-note{font-size:13px;opacity:.8;margin-top:16px;line-height:1.6}
 
   .pass{background:#fff;color:var(--ink);border-radius:22px;margin-top:24px;overflow:hidden}
   .pass-item{padding:26px 22px 22px;display:flex;align-items:center;gap:16px}
@@ -283,7 +283,7 @@
         <div class="done-sub">Registration Complete</div>
       </div>
     </div>
-    <p>請出示此畫面給服務台人員<br>Please show this screen at the service counter</p>
+    <p class="done-note">請出示此畫面給服務台人員<br>Please show this screen at the service counter</p>
 
     <div class="pass">
       <div class="pass-item">
@@ -396,7 +396,7 @@
         const body = new URLSearchParams();
         body.append(ENTRY.date, isoDate(now)); // 格式需為 YYYY-MM-DD
         body.append(ENTRY.name, data.name);
-        body.append(ENTRY.phone, "'" + data.phone); // 前面加 ' 避免試算表吃掉開頭的 0
+        body.append(ENTRY.phone, data.phone);
         body.append(ENTRY.item, data.item.value);
         await fetch(GOOGLE_FORM_ACTION, { method: "POST", mode: "no-cors", body });
       } else {

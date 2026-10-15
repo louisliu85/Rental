@@ -193,10 +193,11 @@
   .pass-cut{position:relative;border-top:2px dashed var(--line);margin:0 22px}
   .pass-cut::before,.pass-cut::after{content:"";position:absolute;top:-13px;width:26px;height:26px;border-radius:50%;background:var(--primary)}
   .pass-cut::before{left:-35px}.pass-cut::after{right:-35px}
-  .pass-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;padding:20px 22px}
+  .pass-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 16px;padding:20px 22px}
   .pass-grid .k{font-size:13px;color:var(--muted)}
   .pass-grid .v{font-size:20px;font-weight:900;margin-top:2px}
-  .pass-grid .v.num{font-family:"Inter",sans-serif;font-weight:600;letter-spacing:.03em}
+  .pass-grid .v.num{font-family:"Inter",sans-serif;font-weight:600;letter-spacing:.03em;white-space:nowrap}
+  @media (max-width:340px){.pass-grid .v{font-size:17px}.pass-item .v{font-size:23px}}
   .pass-grid .full{grid-column:1/-1;margin-top:14px}
   .pass-foot{background:#fff8e6;color:#5c4712;font-size:13.5px;line-height:1.7;padding:14px 22px}
   .pass-foot b{color:#3f300a}
